@@ -1,58 +1,4 @@
 Getting and Cleaning Data Course Project
-Accelerometer Data Prep and Summarization
-========================================================
-
-This R markdown document provides explanations of the steps required to obtain and prepare data from an accelerometer data set as fulfill for the student project required for the "Getting and Cleaning Data" course taught by Jeff Leek in April 2014.
-
-Explanation of the files and data:
-
-The source data files are all in .txt format and include two metadata files and three data files each for test and training, as follows:
-
-activity_labels.txt     - associates activity codes to activity labels
-features.txt            - descriptive labels for the 561 accelerometer variables
-
-X_test.txt              - 2947 rows of observations in the test set
-y_test.txt              - provides the activity code number for each test observation
-subject_test.txt        - provides the subject (person tested) for each test observation
-
-X_train.txt             - 7352 rows of observations in the training set
-y_train.txt             - provides the activity code number for each training observation
-subject_train.txt       - provides the subject (person tested) for each training observation
-
-
-The scripts embedded in this document are fully self contained and include all actions required to set up a working environment in R, acquire and manipulate the data, and write an output file.
-
-Overview of the Steps:
-
-1) Set working directory, download and unpack raw zip file 
-2) Merge the training and the test sets to create one data set
-3) Create one data set with mean and std dev for each measurement 
-4) Create an output data set with the average of each mean and std dev variable for each activity and each subject. 
-
-Section 1: Set working directory, download and unpack raw data zip file 
-
-You will first need to create a working directory and set your R session to that working directory:
-
-```{r}
-setwd("specify your desired working directory path here")    
-```
-
-Then, the following script will check to see if you already have the data set unzipped in your working directory, and if not the script will access the data set zip file and unzip it in your working directory under the subdirectory "/UCI HAR Dataset".  Once unzipped, the original zip file is removed to save disk space:
-
-```{r}
-if (file.exists("./UCI HAR Dataset"))  {
-} else  {
-  
-tempFile <- tempfile()
-filePath  <- file.path(getwd())
-download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip",tempFile, mode = 'wb')
-
-files <- unzip( tempFile , exdir = filePath )     # unpack zip file
-file.remove(tempFile)                             # remove zip file
-
-}
-```
-Getting and Cleaning Data Course Project
 ========================================================
 Accelerometer Data Prep and Summarization
 --------------------------------------------------------
@@ -66,14 +12,14 @@ The source data files are all in .txt format and include two metadata files plus
 
 File | Description
 -----|-------------
-activity_labels.txt         | - associates activity codes to activity labels  
-features.txt        | - descriptive labels for the 561 accelerometer variables  
-X_test.txt        | - 2947 rows of observations in the test set  
-y_test.txt        | - provides the activity code number for each test observation  
-subject_test.txt        | - provides the subject (person tested) for each test observation  
-X_train.txt         | - 7352 rows of observations in the training set  
-y_train.txt         | - provides the activity code number for each training observation  
-subject_train.txt         | - provides the subject (person tested) for each training observation  
+activity_labels.txt         | associates activity codes to activity labels  
+features.txt        | descriptive labels for the 561 accelerometer variables  
+X_test.txt        | 2947 rows of observations in the test set  
+y_test.txt        | provides the activity code number for each test observation  
+subject_test.txt        | provides the subject (person tested) for each test observation  
+X_train.txt         | 7352 rows of observations in the training set  
+y_train.txt         | provides the activity code number for each training observation  
+subject_train.txt         | provides the subject (person tested) for each training observation  
 
 The scripts embedded in this document are fully self contained and include all actions required to set up a working environment in R, acquire and manipulate the data, and write an output file.
 
@@ -141,7 +87,7 @@ activityLabels <- data.frame (activityCode = n, activityLabel = as.character(m),
 
 For the next script section it is important to describe the layout of the data in the  lines for the "X_test.txt" and "X_train.txt" files.  These two files carry the majority of the data; each line is 8976 characters long made up of 561 variables in scientific notation with overall length of 16 characters per variable.  Separation is not consistent between the variables, as some are positive (2 spaces between) and some are negative (1 space between).  Consequently, this data needs to be parsed by character position.  The parsing is done column-wise so columns can be created and added to the data frame.  In the course of reading the variable values, they need to be converted to decimal notation.
 
-TO begin, we open the X_test.txt variable file:
+Tobegin, we open the X_test.txt variable file:
 
 ```{r}
 con <- file("./UCI HAR Dataset/test/X_test.txt", "rt")
@@ -175,7 +121,7 @@ end = end + 16
 }
 ```
 
-Then feature names are added to the testDf data frame using the "features" vector created earlier:
+Then 561 feature names are added to the testDf data frame using the "features" vector created earlier:
 ```{r}
 colnames(testDf) <- features
 ```
@@ -204,4 +150,123 @@ for (i in 1:nrow(testDf)) {
   testDf[i,563]=as.character(n)   
   
 } 
+```
+
+Next we open the test subject file and add a column to testDf to show the subject number associated to each row of accelerometer observations.
+
+```{r}
+con <- file("./UCI HAR Dataset/test/subject_test.txt", "rt")
+testSubject <- (readLines(con))
+close(con)
+
+testDf <- data.frame(testDf,subject=as.character(testSubject), stringsAsFactors=FALSE)
+```
+
+This then completes the assembly of testDf data frame.  It has 2947 rows of observations and 564 columns of variables, 561 of which are numeric accelerometer measurements and the remaining three are identification variables for subject, activity label, and activity code.
+
+The next section of script performs the same procedures as above applied to the training data set.  All steps are identical but the data set has more than twice the number of observations (nrow=7352)
+```{r}
+#    Open test variable file and parse by loops to extract variable columns
+
+con <- file("./UCI HAR Dataset/train/X_train.txt", "rt")
+trainText <- (readLines(con))
+close(con)
+
+trainDf <- data.frame(matrix(nrow = 7352, ncol = 561), stringsAsFactors=FALSE)  # initialize empty data frame for output
+
+begin = 1               # initialize character position for begin variable value read
+end = 16                # initialize character position for end variable value read
+
+for (i in 1:561)  {
+  
+  buildVector <- c()      # initialize vector to contain variable values
+  
+  for (j in 1:7352) {
+    
+    valueRead = as.numeric(substr(trainText[j], start=begin, stop=end))
+    
+    buildVector <- c(buildVector, valueRead) 
+    
+  }
+  
+  trainDf[,i] <- buildVector
+  
+  begin = begin + 16
+  end = end + 16
+  
+}
+
+#   Add feature names to train data frame
+
+colnames(trainDf) <- features
+
+#   Add activity codes to train data frame 
+
+con <- file("./UCI HAR Dataset/train/y_train.txt", "rt")
+trainActivityCodes <- (readLines(con))
+close(con)
+
+trainDf <- data.frame(trainDf, activityCode = as.numeric(trainActivityCodes))
+
+#   Add activity label column corresponding to activity codes
+
+addDummyCol=rep("NA",nrow(trainDf))
+trainDf <- data.frame(trainDf,activity=as.character(addDummyCol), stringsAsFactors=FALSE)
+
+
+for (i in 1:nrow(trainDf)) {
+  
+  n = as.factor(activityLabels[trainDf[i,562],2])
+  trainDf[i,563]=as.character(n)   
+  
+} 
+
+#   Add subject column for each observation
+
+con <- file("./UCI HAR Dataset/train/subject_train.txt", "rt")
+trainSubject <- (readLines(con))
+close(con)
+
+trainDf <- data.frame(trainDf,subject=as.character(trainSubject), stringsAsFactors=FALSE)
+```
+Finally, we are now ready to combine the testDf and trainDf datasets into one:
+```{r}
+totalDf <- rbind(testDf, trainDf)
+```
+Section 3: Create one data set with mean and standard deviation for each measurement  
+----------
+In this step, we first note that the raw accelerometer measurements were transformed by the authors of the data research into 17 types of transformed measures using a variety of methods.  To give an idea, five of them are:
+
+Type | Description
+-----  ---------
+mean() | Mean value
+std() | Standard deviation
+mad() | Median absolute deviation 
+max() | Largest value in array
+min() | Smallest value in array
+
+The assignment calls for selecting only the measures that are "mean" and "std dev" measures, which requires identifying and removing measures that do not have "mean" or "std" in the feature label. A vector is created that identifies columns to be removed and they are removed as follows:
+```{r}
+meanFeatures <- grep("mean",features)
+stdFeatures <- grep("std",features)
+meanAndStdFeatures <-c(meanFeatures, stdFeatures)
+
+keepColumns <- c(meanAndStdFeatures, 562:564)
+trimDf = totalDf[,keepColumns]
+```
+Section 4: Create an output data set 
+----------------
+The project requirements state the output file should include the average of each mean and std dev variable for each activity and each subject. An expedient way to accomplish this that avoids iterative looping is to melt and recast the data as follows:
+
+```{r}
+trimDfMelt <- melt(trimDf,id=c(names(trimDf[,80:82])),measure.vars=c(names(trimDf[,1:79])))
+subjectActivityMeans <- dcast(trimDfMelt, subject + activity ~ variable, mean)
+```
+Finally we sort the output by subject and activity and write it to a comma separated .txt file:
+```{r}
+sortedOutput <-arrange(subjectActivityMeans, as.numeric(subject), activity)
+
+write.table(sortedOutput, file = "GettingCleaningDataProject.txt", sep = ",")
+
+#    To read output file use: read.table("GettingCleaningDataProject.txt", sep = ",")
 ```
