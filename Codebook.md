@@ -87,7 +87,7 @@ activityLabels <- data.frame (activityCode = n, activityLabel = as.character(m),
 
 For the next script section it is important to describe the layout of the data in the  lines for the "X_test.txt" and "X_train.txt" files.  These two files carry the majority of the data; each line is 8976 characters long made up of 561 variables in scientific notation with overall length of 16 characters per variable.  Separation is not consistent between the variables, as some are positive (2 spaces between) and some are negative (1 space between).  Consequently, this data needs to be parsed by character position.  The parsing is done column-wise so columns can be created and added to the data frame.  In the course of reading the variable values, they need to be converted to decimal notation.
 
-Tobegin, we open the X_test.txt variable file:
+To begin, we open the X_test.txt variable file:
 
 ```{r}
 con <- file("./UCI HAR Dataset/test/X_test.txt", "rt")
@@ -238,14 +238,14 @@ Section 3: Create one data set with mean and standard deviation for each measure
 In this step, we first note that the raw accelerometer measurements were transformed by the authors of the data research into 17 types of transformed measures using a variety of methods.  To give an idea, five of them are:
 
 Type | Description
------  ---------
+----- | ---------
 mean() | Mean value
 std() | Standard deviation
 mad() | Median absolute deviation 
 max() | Largest value in array
 min() | Smallest value in array
 
-The assignment calls for selecting only the measures that are "mean" and "std dev" measures, which requires identifying and removing measures that do not have "mean" or "std" in the feature label. A vector is created that identifies columns to be removed and they are removed as follows:
+The assignment calls for selecting only the measures that are "mean" and "std dev" measures, which requires identifying and removing measures that do not have "mean" or "std" in the feature label. A vector is created that identifies columns to be removed, which is then accomplished as follows:
 ```{r}
 meanFeatures <- grep("mean",features)
 stdFeatures <- grep("std",features)
