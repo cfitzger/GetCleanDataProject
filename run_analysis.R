@@ -22,7 +22,7 @@
 #     
 ################################################################################
 
-setwd("put your desired working directory path here")    # uncomment & use as needed
+#   setwd("put your desired working directory path here")    # uncomment & use as needed
 
 #   If zip file has not been unpacked into "UCI HAR Dataset"
 #   subdirectory, create temporary file and directory path and 
@@ -35,7 +35,7 @@ if (file.exists("./UCI HAR Dataset"))  {
   
 tempFile <- tempfile()
 filePath  <- file.path(getwd())
-download.file("https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip",tempFile, mode = 'wb')
+download.file("http://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip",tempFile, mode = 'wb')
 
 files <- unzip( tempFile , exdir = filePath )     # unpack zip file
 file.remove(tempFile)                             # remove zip file
