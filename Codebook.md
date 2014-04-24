@@ -28,7 +28,7 @@ Overview of the Steps:
 1. Set working directory, download and unpack raw zip file 
 2. Merge the training and the test sets to create one data set
 3. Create one data set with mean and std dev for each measurement 
-4. Create an output data set with the average of each mean and std dev variable for each activity and each subject. 
+4. Create an output data set with the average of each mean and std dev variable for each activity + subject combination. 
 
 Section 1: Set working directory, download and unpack raw data zip file 
 ------------
