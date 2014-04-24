@@ -4,7 +4,7 @@ Accelerometer Data Prep and Summarization
 --------------------------------------------------------
 
 
-This R markdown document provides explanations of the steps required to obtain and prepare data from an accelerometer data set as fulfillment for the student project required for the "Getting and Cleaning Data" course taught by Jeff Leek in April 2014.
+This document provides explanations of the steps required to obtain and prepare data from an accelerometer data set as fulfillment for the student project required for the "Getting and Cleaning Data" course taught by Jeff Leek in April 2014.  R scripts are included that execute each of the procedures described herein.
 
 Explanation of the files and data:
 
