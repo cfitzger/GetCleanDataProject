@@ -135,11 +135,11 @@ testDf <- data.frame(testDf,subject=as.character(testSubject), stringsAsFactors=
 
    ##########################################################
    #                                                        #
-   #      Adapt procedures above to build trainDf           #
+   # Adapt testDf build procedures above to build trainDf   #
    #                                                        #
    ##########################################################
 
-#    Open test variable file and parse by loops to extract variable columns
+#    Open train variable file and parse by loops to extract variable columns
 
 con <- file("./UCI HAR Dataset/train/X_train.txt", "rt")
 trainText <- (readLines(con))
@@ -222,7 +222,7 @@ trimDf = totalDf[,keepColumns]
 ################################################################################
 #
 #   4) Create an output data set with the average of each mean and std dev
-#      variable for each activity and each subject. 
+#      variable for each activity + subject combination. 
 #     
 ################################################################################
 
