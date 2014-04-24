@@ -229,7 +229,7 @@ close(con)
 
 trainDf <- data.frame(trainDf,subject=as.character(trainSubject), stringsAsFactors=FALSE)
 ```
-Finally, we are now ready to combine the testDf and trainDf datasets into one:
+Finally, we combine the testDf and trainDf datasets into one:
 ```{r}
 totalDf <- rbind(testDf, trainDf)
 ```
@@ -256,7 +256,7 @@ trimDf = totalDf[,keepColumns]
 ```
 Section 4: Create an output data set 
 ----------------
-The project requirements state the output file should include the average of each mean and std dev variable for each activity and each subject. An expedient way to accomplish this that avoids iterative looping is to melt and recast the data as follows:
+The project requirements state the output file should include the average of each mean and std dev variable for each activity + subject combination. An expedient way to accomplish this that avoids iterative looping is to melt and recast the data as follows:
 
 ```{r}
 trimDfMelt <- melt(trimDf,id=c(names(trimDf[,80:82])),measure.vars=c(names(trimDf[,1:79])))
