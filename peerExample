@@ -1,0 +1,113 @@
+######################################################
+#  Getting and Cleaning Data Project - good example  #
+######################################################
+
+
+### Set your working directory (UCI_HAR_Dataset folder already there, 
+### and we assume that this folder has been downloaded,extracted
+### and renamed in the same way).
+
+
+wd <- getwd()
+
+### Useful folders
+data.dir <- "UCI_HAR_Dataset\\"
+data.dir.test <- "UCI_HAR_Dataset\\test\\"
+data.dir.train <- "UCI_HAR_Dataset\\train\\"
+
+### Join files stored in the train folder
+creatingTrain <- function(path){
+  data.files <- list.files(path)
+  text <- data.files[grep(".txt",data.files)]
+  
+  train <- list()
+  wd <- getwd()
+  for (i in 1:length(text)){
+    dir <- paste(wd,"\\",path,text[i],sep = "")
+    train[[i]] <- read.table(dir)
+  }
+  
+  Train <<- do.call(cbind,train)
+}
+creatingTrain(data.dir.train)
+
+### Join files in the test folder
+creatingTest <- function(path){
+  data.files <- list.files(path)
+  text <- data.files[grep(".txt",data.files)]
+  
+  test <- list()
+  wd <- getwd()
+  for (i in 1:length(text)){
+    dir <- paste(wd,"\\",path,text[i],sep = "")
+    test[[i]] <- read.table(dir)
+  }
+  
+  Test<<- do.call(cbind,test)
+}
+creatingTest(data.dir.test)
+
+### Join both train dataset and test dataset
+Final <- rbind(Train,Test)
+dim(Final)
+
+### Add col.names
+names(Final)[1] <- c("Subject")
+dir <- paste(wd,"\\",data.dir,"features.txt",sep = "")
+features <- read.table(dir)
+names(Final)[2:562] <- as.character(features$V2)
+names(Final)[563] <- c("Activity_Code")
+
+### Add an empty "Activity"" column
+Final$Activity <- as.character(seq(1:nrow(Final)))
+
+### Create labels and fill Activity column with them 
+Final[Final$Activity_Code == 1,]$Activity <- "WALKING"
+Final[Final$Activity_Code == 2,]$Activity <- "WALKING_UPSTAIRS"
+Final[Final$Activity_Code == 3,]$Activity <- "WALKING_DOWNSTAIRS"
+Final[Final$Activity_Code == 4,]$Activity <- "SITTING"
+Final[Final$Activity_Code == 5,]$Activity <- "STANDING"
+Final[Final$Activity_Code == 6,]$Activity <- "LAYING"
+
+### Here we are moving columns to improve our dataframe
+### (Subject,Activity_code and Activity columns first of all)
+col_idx <- grep("Activity", names(Final))
+Final <- Final[, c(col_idx, (1:ncol(Final))[-col_idx])]
+
+col_idx2 <- grep("Subject", names(Final))
+Final <- Final[, c(col_idx2, (1:ncol(Final))[-col_idx2])]
+
+
+
+### 1)Extracts only the measurements on the mean and standard deviation for 
+###   each measurement.
+
+
+
+mean_index <- grep("mean()",names(Final)) #Not enough,this function also gets meanFreq string
+meanFreq_index <- grep("meanFreq()",names(Final[,mean_index]))#Here exclude them
+sd_index <- grep("std()",names(Final))
+
+mean.sd.data <- Final[,c((1:3),mean_index[-meanFreq_index],sd_index)]
+
+#required_index <- grep("\\(\\)$",names(mean.sd.data)) #Should exclude -X -Y -Z columns??.
+
+#mean.sd.data <- mean.sd.data[,c((1:3),required_index)] ?? 
+
+dim(mean.sd.data)
+head(mean.sd.data,5)
+
+
+### 2)Creates a second, independent tidy data set with the average of 
+###   each variable for each activity and each subject.
+
+library(reshape2) # We need this package in order to rearrange our dataset
+
+molten <- melt(mean.sd.data,id = c("Activity","Subject")) 
+FinalData <- dcast(molten,Subject + Activity ~ variable,mean)
+names(FinalData) <- gsub("\\(\\)","",names(FinalData))
+head(FinalData,5)
+
+
+#Write table for submit
+write.table(FinalData,file = "Submit.txt")
